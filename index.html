@@ -57,9 +57,79 @@
       background:#b6ff00;
     }
 
+    .splash{
+      position:fixed;
+      inset:0;
+      background:#0f0f0f;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      z-index:9999;
+      animation:fadeOut 1s ease forwards;
+      animation-delay:2s;
+    }
+
+    .splash h1{
+      color:#b6ff00;
+      font-size:42px;
+    }
+
+    @keyframes fadeOut{
+      to{
+        opacity:0;
+        visibility:hidden;
+      }
+    }
+
+    .carousel{
+      width:100%;
+      overflow:hidden;
+      position:relative;
+      margin-top:10px;
+    }
+
+    .carousel-track{
+      display:flex;
+      gap:15px;
+      overflow-x:auto;
+      scroll-behavior:smooth;
+      padding:20px;
+    }
+
+    .carousel-track::-webkit-scrollbar{
+      display:none;
+    }
+
+    .banner-card{
+      min-width:280px;
+      background:#1a1a1a;
+      border-radius:18px;
+      overflow:hidden;
+      flex-shrink:0;
+      position:relative;
+    }
+
+    .banner-card img{
+      width:100%;
+      height:180px;
+      object-fit:cover;
+    }
+
+    .banner-info{
+      padding:12px;
+    }
+
+    .section-title{
+      padding:0 20px;
+      margin-top:15px;
+      color:#b6ff00;
+      font-size:18px;
+    }
+
     .grid{
       display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
       gap:15px;
       padding:20px;
     }
@@ -76,6 +146,8 @@
 
     .card img{
       width:100%;
+      height:140px;
+      object-fit:cover;
       border-radius:10px;
     }
 
@@ -109,6 +181,10 @@
 </head>
 <body>
 
+<div class="splash">
+  <h1>VitrineMax</h1>
+</div>
+
 <header>
   <h1>🟢 VitrineMax</h1>
   <input class="search" id="search" placeholder="Buscar produtos..." />
@@ -126,12 +202,27 @@
   </div>
 </header>
 
+<h2 class="section-title">⭐ Destaques</h2>
+<div class="carousel">
+  <div class="carousel-track" id="carouselTrack"></div>
+</div>
+
+<h2 class="section-title">🔥 Mais Comprados</h2>
+<div class="grid" id="featuredGrid"></div>
+
+<h2 class="section-title">🆕 Recém Adicionados</h2>
+<div class="grid" id="recentGrid"></div>
+
+<h2 class="section-title">🛍️ Todos os Produtos</h2>
 <div class="grid" id="grid"></div>
 
 <button id="manageBtn" style="position:fixed;top:20px;right:20px;background:#b6ff00;color:#000;border:none;padding:12px 15px;border-radius:12px;font-weight:bold;cursor:pointer;z-index:999;font-size:20px;">☰</button>
 
 <div id="managePanel" style="display:none;position:fixed;top:0;right:0;width:320px;height:100%;background:#111;padding:20px;overflow:auto;z-index:1000;box-shadow:-5px 0 15px rgba(0,0,0,0.5);">
-  <h2 style="margin-bottom:15px;color:#b6ff00;">Gerenciar Produtos</h2>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+  <h2 style="color:#b6ff00;">Gerenciar Produtos</h2>
+  <button onclick="closePanel()" style="background:#b6ff00;color:#000;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:bold;">Voltar</button>
+</div>
 
   <input id="title" placeholder="Nome do produto" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
 
@@ -141,7 +232,17 @@
 
   <input id="link" placeholder="Link de afiliado" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
 
-  <select id="category" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;">
+  <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+  <input type="checkbox" id="featured" />
+  Marcar como mais comprado
+</label>
+
+<label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+  <input type="checkbox" id="carousel" />
+  Adicionar ao carrossel
+</label>
+
+<select id="category" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;">
     <option value="celulares">Celulares</option>
     <option value="games">Games</option>
     <option value="casa">Casa</option>
@@ -189,10 +290,57 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 let currentCategory = "all";
 
 function render(){
+  const featuredGrid = document.getElementById("featuredGrid");
+  const carouselTrack = document.getElementById("carouselTrack");
+  const recentGrid = document.getElementById("recentGrid");
   const grid = document.getElementById("grid");
   const search = document.getElementById("search").value.toLowerCase();
 
   grid.innerHTML = "";
+  featuredGrid.innerHTML = "";
+  carouselTrack.innerHTML = "";
+  recentGrid.innerHTML = "";
+
+  products
+    .filter(p => p.carousel)
+    .forEach(p => {
+      carouselTrack.innerHTML += `
+        <div class="banner-card">
+          <img src="${p.img}" />
+          <div class="banner-info">
+            <h3>${p.title}</h3>
+            <div class="price">${p.price}</div>
+            <a class="btn" href="${p.link}" target="_blank">Comprar</a>
+          </div>
+        </div>
+      `;
+    });
+
+  products
+    .slice().reverse().slice(0,6)
+    .forEach(p => {
+      recentGrid.innerHTML += `
+        <div class="card">
+          <img src="${p.img}" />
+          <h3>${p.title}</h3>
+          <div class="price">${p.price}</div>
+          <a class="btn" href="${p.link}" target="_blank">Comprar</a>
+        </div>
+      `;
+    });
+
+  products
+    .filter(p => p.featured)
+    .forEach(p => {
+      featuredGrid.innerHTML += `
+        <div class="card">
+          <img src="${p.img}" />
+          <h3>${p.title}</h3>
+          <div class="price">${p.price}</div>
+          <a class="btn" href="${p.link}" target="_blank">Comprar</a>
+        </div>
+      `;
+    });
 
   products
     .filter(p => currentCategory === "all" || p.category === currentCategory)
@@ -242,6 +390,8 @@ function addProduct(){
   const img = document.getElementById("img").value;
   const link = document.getElementById("link").value;
   const category = document.getElementById("category").value;
+  const featured = document.getElementById("featured").checked;
+  const carousel = document.getElementById("carousel").checked;
 
   if(!title || !price || !img || !link){
     alert("Preencha todos os campos");
@@ -253,7 +403,9 @@ function addProduct(){
     price,
     img,
     link,
-    category
+    category,
+    featured,
+    carousel
   });
 
   localStorage.setItem("products", JSON.stringify(products));
@@ -264,6 +416,11 @@ function addProduct(){
   document.getElementById("price").value = "";
   document.getElementById("img").value = "";
   document.getElementById("link").value = "";
+  document.getElementById("featured").checked = false;
+  document.getElementById("carousel").checked = false;
+}
+function closePanel(){
+  managePanel.style.display = "none";
 }
 </script>
 
