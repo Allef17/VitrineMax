@@ -90,7 +90,7 @@
 
     .btn{
       background:#b6ff00;
-      color:#fff;
+      color:#000;
       padding:8px;
       border:none;
       border-radius:8px;
@@ -118,12 +118,17 @@
     <button data-cat="celulares">Celulares</button>
     <button data-cat="games">Games</button>
     <button data-cat="casa">Casa</button>
+    <button data-cat="informatica">Informática</button>
+    <button data-cat="moda">Moda</button>
+    <button data-cat="audio">Áudio</button>
+    <button data-cat="tv">TVs</button>
+    <button data-cat="esportes">Esportes</button>
   </div>
 </header>
 
 <div class="grid" id="grid"></div>
 
-<button id="manageBtn" style="position:fixed;bottom:20px;right:20px;background:#b6ff00;color:#000;border:none;padding:12px 18px;border-radius:12px;font-weight:bold;cursor:pointer;z-index:999;">Gerenciar</button>
+<button id="manageBtn" style="position:fixed;top:20px;right:20px;background:#b6ff00;color:#000;border:none;padding:12px 15px;border-radius:12px;font-weight:bold;cursor:pointer;z-index:999;font-size:20px;">☰</button>
 
 <div id="managePanel" style="display:none;position:fixed;top:0;right:0;width:320px;height:100%;background:#111;padding:20px;overflow:auto;z-index:1000;box-shadow:-5px 0 15px rgba(0,0,0,0.5);">
   <h2 style="margin-bottom:15px;color:#b6ff00;">Gerenciar Produtos</h2>
@@ -140,6 +145,11 @@
     <option value="celulares">Celulares</option>
     <option value="games">Games</option>
     <option value="casa">Casa</option>
+    <option value="informatica">Informática</option>
+    <option value="moda">Moda</option>
+    <option value="audio">Áudio</option>
+    <option value="tv">TVs</option>
+    <option value="esportes">Esportes</option>
   </select>
 
   <button onclick="addProduct()" style="width:100%;padding:12px;background:#b6ff00;color:#000;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
@@ -152,7 +162,7 @@
 </div>
 
 <script>
-const products = [
+let products = JSON.parse(localStorage.getItem("products")) || [
   {
     title: "iPhone 13",
     price: "R$ 3.999",
@@ -216,6 +226,13 @@ const manageBtn = document.getElementById("manageBtn");
 const managePanel = document.getElementById("managePanel");
 
 manageBtn.addEventListener("click", () => {
+  const senha = prompt("Digite a senha para acessar o gerenciamento:");
+
+  if(senha !== "1704@"){
+    alert("Senha incorreta");
+    return;
+  }
+
   managePanel.style.display = managePanel.style.display === "block" ? "none" : "block";
 });
 
@@ -238,6 +255,8 @@ function addProduct(){
     link,
     category
   });
+
+  localStorage.setItem("products", JSON.stringify(products));
 
   render();
 
