@@ -27,7 +27,7 @@
 
     h1{
       font-size:22px;
-      color:#ff3b3b;
+      color:#b6ff00;
     }
 
     .search{
@@ -54,7 +54,7 @@
     }
 
     .categories button.active{
-      background:#ff3b3b;
+      background:#b6ff00;
     }
 
     .grid{
@@ -89,7 +89,7 @@
     }
 
     .btn{
-      background:#ff3b3b;
+      background:#b6ff00;
       color:#fff;
       padding:8px;
       border:none;
@@ -110,7 +110,7 @@
 <body>
 
 <header>
-  <h1>🔥 Minha Loja de Ofertas</h1>
+  <h1>🟢 VitrineMax</h1>
   <input class="search" id="search" placeholder="Buscar produtos..." />
 
   <div class="categories" id="categories">
@@ -122,6 +122,30 @@
 </header>
 
 <div class="grid" id="grid"></div>
+
+<button id="manageBtn" style="position:fixed;bottom:20px;right:20px;background:#b6ff00;color:#000;border:none;padding:12px 18px;border-radius:12px;font-weight:bold;cursor:pointer;z-index:999;">Gerenciar</button>
+
+<div id="managePanel" style="display:none;position:fixed;top:0;right:0;width:320px;height:100%;background:#111;padding:20px;overflow:auto;z-index:1000;box-shadow:-5px 0 15px rgba(0,0,0,0.5);">
+  <h2 style="margin-bottom:15px;color:#b6ff00;">Gerenciar Produtos</h2>
+
+  <input id="title" placeholder="Nome do produto" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
+
+  <input id="price" placeholder="Preço" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
+
+  <input id="img" placeholder="Link da imagem" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
+
+  <input id="link" placeholder="Link de afiliado" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
+
+  <select id="category" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;">
+    <option value="celulares">Celulares</option>
+    <option value="games">Games</option>
+    <option value="casa">Casa</option>
+  </select>
+
+  <button onclick="addProduct()" style="width:100%;padding:12px;background:#b6ff00;color:#000;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
+    Adicionar Produto
+  </button>
+</div>
 
 <div class="note">
   *Os produtos são vendidos por lojas parceiras (Amazon, Shopee, Mercado Livre). Podemos receber comissão pelas compras realizadas através dos links.
@@ -187,6 +211,41 @@ document.querySelectorAll(".categories button").forEach(btn => {
 });
 
 render();
+
+const manageBtn = document.getElementById("manageBtn");
+const managePanel = document.getElementById("managePanel");
+
+manageBtn.addEventListener("click", () => {
+  managePanel.style.display = managePanel.style.display === "block" ? "none" : "block";
+});
+
+function addProduct(){
+  const title = document.getElementById("title").value;
+  const price = document.getElementById("price").value;
+  const img = document.getElementById("img").value;
+  const link = document.getElementById("link").value;
+  const category = document.getElementById("category").value;
+
+  if(!title || !price || !img || !link){
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  products.push({
+    title,
+    price,
+    img,
+    link,
+    category
+  });
+
+  render();
+
+  document.getElementById("title").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("img").value = "";
+  document.getElementById("link").value = "";
+}
 </script>
 
 </body>
