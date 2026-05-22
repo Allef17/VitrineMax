@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Loja de Ofertas</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, sans-serif;
+    }
+
+    body{
+      background:#0f0f0f;
+      color:#fff;
+    }
+
+    header{
+      padding:20px;
+      background:#111;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    h1{
+      font-size:22px;
+      color:#ff3b3b;
+    }
+
+    .search{
+      padding:10px;
+      border-radius:8px;
+      border:none;
+      outline:none;
+      width:100%;
+    }
+
+    .categories{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .categories button{
+      padding:8px 12px;
+      border:none;
+      border-radius:20px;
+      cursor:pointer;
+      background:#222;
+      color:#fff;
+    }
+
+    .categories button.active{
+      background:#ff3b3b;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+      gap:15px;
+      padding:20px;
+    }
+
+    .card{
+      background:#1a1a1a;
+      border-radius:12px;
+      overflow:hidden;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .card img{
+      width:100%;
+      border-radius:10px;
+    }
+
+    .card h3{
+      font-size:14px;
+    }
+
+    .price{
+      color:#00ff99;
+      font-weight:bold;
+    }
+
+    .btn{
+      background:#ff3b3b;
+      color:#fff;
+      padding:8px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      text-align:center;
+      text-decoration:none;
+      display:block;
+    }
+
+    .note{
+      padding:10px 20px;
+      font-size:12px;
+      opacity:0.7;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔥 Minha Loja de Ofertas</h1>
+  <input class="search" id="search" placeholder="Buscar produtos..." />
+
+  <div class="categories" id="categories">
+    <button class="active" data-cat="all">Todos</button>
+    <button data-cat="celulares">Celulares</button>
+    <button data-cat="games">Games</button>
+    <button data-cat="casa">Casa</button>
+  </div>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<div class="note">
+  *Os produtos são vendidos por lojas parceiras (Amazon, Shopee, Mercado Livre). Podemos receber comissão pelas compras realizadas através dos links.
+</div>
+
+<script>
+const products = [
+  {
+    title: "iPhone 13",
+    price: "R$ 3.999",
+    category: "celulares",
+    img: "https://via.placeholder.com/300",
+    link: "https://seulinkdeafiliado.com"
+  },
+  {
+    title: "PlayStation 5",
+    price: "R$ 4.200",
+    category: "games",
+    img: "https://via.placeholder.com/300",
+    link: "https://seulinkdeafiliado.com"
+  },
+  {
+    title: "Air Fryer",
+    price: "R$ 299",
+    category: "casa",
+    img: "https://via.placeholder.com/300",
+    link: "https://seulinkdeafiliado.com"
+  }
+];
+
+let currentCategory = "all";
+
+function render(){
+  const grid = document.getElementById("grid");
+  const search = document.getElementById("search").value.toLowerCase();
+
+  grid.innerHTML = "";
+
+  products
+    .filter(p => currentCategory === "all" || p.category === currentCategory)
+    .filter(p => p.title.toLowerCase().includes(search))
+    .forEach(p => {
+      grid.innerHTML += `
+        <div class="card">
+          <img src="${p.img}" />
+          <h3>${p.title}</h3>
+          <div class="price">${p.price}</div>
+          <a class="btn" href="${p.link}" target="_blank">Comprar</a>
+        </div>
+      `;
+    });
+}
+
+document.getElementById("search").addEventListener("input", render);
+
+document.querySelectorAll(".categories button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".categories button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentCategory = btn.dataset.cat;
+    render();
+  });
+});
+
+render();
+</script>
+
+</body>
+</html>
