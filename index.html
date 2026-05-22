@@ -254,8 +254,25 @@
   </select>
 
   <button onclick="addProduct()" style="width:100%;padding:12px;background:#b6ff00;color:#000;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
-    Adicionar Produto
+    Salvar Produto
   </button>
+
+  <div style="margin-top:20px;padding-top:20px;border-top:1px solid #333;">
+    <h3 style="margin-bottom:10px;color:#b6ff00;">Alterar Senha</h3>
+
+    <input id="currentPassword" placeholder="Senha atual" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
+
+    <input id="newPassword" placeholder="Nova senha" style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;" />
+
+    <button onclick="changePassword()" style="width:100%;padding:10px;background:#b6ff00;color:#000;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
+      Alterar Senha
+    </button>
+  </div>
+
+  <div style="margin-top:20px;padding-top:20px;border-top:1px solid #333;">
+    <h3 style="margin-bottom:10px;color:#b6ff00;">Produtos Cadastrados</h3>
+    <div id="adminProducts"></div>
+  </div>
 </div>
 
 <div class="note">
@@ -288,11 +305,14 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 ];
 
 let currentCategory = "all";
+let adminPassword = localStorage.getItem("adminPassword") || "1704@";
+let editingIndex = null;
 
 function render(){
   const featuredGrid = document.getElementById("featuredGrid");
   const carouselTrack = document.getElementById("carouselTrack");
   const recentGrid = document.getElementById("recentGrid");
+  const adminProducts = document.getElementById("adminProducts");
   const grid = document.getElementById("grid");
   const search = document.getElementById("search").value.toLowerCase();
 
@@ -300,6 +320,7 @@ function render(){
   featuredGrid.innerHTML = "";
   carouselTrack.innerHTML = "";
   recentGrid.innerHTML = "";
+  if(adminProducts) adminProducts.innerHTML = "";
 
   products
     .filter(p => p.carousel)
@@ -317,6 +338,8 @@ function render(){
     });
 
   products
+    .filter(p => currentCategory === "all" || p.category === currentCategory)
+    .filter(p => p.title.toLowerCase().includes(search))
     .slice().reverse().slice(0,6)
     .forEach(p => {
       recentGrid.innerHTML += `
@@ -331,6 +354,8 @@ function render(){
 
   products
     .filter(p => p.featured)
+    .filter(p => currentCategory === "all" || p.category === currentCategory)
+    .filter(p => p.title.toLowerCase().includes(search))
     .forEach(p => {
       featuredGrid.innerHTML += `
         <div class="card">
@@ -345,7 +370,19 @@ function render(){
   products
     .filter(p => currentCategory === "all" || p.category === currentCategory)
     .filter(p => p.title.toLowerCase().includes(search))
-    .forEach(p => {
+    .forEach((p,index) => {
+      if(adminProducts){
+        adminProducts.innerHTML += `
+          <div style="background:#1a1a1a;padding:10px;border-radius:10px;margin-bottom:10px;">
+            <div style="font-weight:bold;margin-bottom:10px;">${p.title}</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="editProduct(${index})" style="flex:1;background:#b6ff00;color:#000;border:none;padding:8px;border-radius:8px;font-weight:bold;cursor:pointer;">Editar</button>
+              <button onclick="deleteProduct(${index})" style="flex:1;background:#ff4d4d;color:#fff;border:none;padding:8px;border-radius:8px;font-weight:bold;cursor:pointer;">Excluir</button>
+            </div>
+          </div>
+        `;
+      }
+
       grid.innerHTML += `
         <div class="card">
           <img src="${p.img}" />
@@ -376,7 +413,7 @@ const managePanel = document.getElementById("managePanel");
 manageBtn.addEventListener("click", () => {
   const senha = prompt("Digite a senha para acessar o gerenciamento:");
 
-  if(senha !== "1704@"){
+  if(senha !== adminPassword){
     alert("Senha incorreta");
     return;
   }
@@ -398,7 +435,7 @@ function addProduct(){
     return;
   }
 
-  products.push({
+  const productData = {
     title,
     price,
     img,
@@ -406,7 +443,14 @@ function addProduct(){
     category,
     featured,
     carousel
-  });
+  };
+
+  if(editingIndex !== null){
+    products[editingIndex] = productData;
+    editingIndex = null;
+  } else {
+    products.push(productData);
+  }
 
   localStorage.setItem("products", JSON.stringify(products));
 
@@ -419,6 +463,51 @@ function addProduct(){
   document.getElementById("featured").checked = false;
   document.getElementById("carousel").checked = false;
 }
+function editProduct(index){
+  const p = products[index];
+
+  document.getElementById("title").value = p.title;
+  document.getElementById("price").value = p.price;
+  document.getElementById("img").value = p.img;
+  document.getElementById("link").value = p.link;
+  document.getElementById("category").value = p.category;
+  document.getElementById("featured").checked = p.featured || false;
+  document.getElementById("carousel").checked = p.carousel || false;
+
+  editingIndex = index;
+}
+
+function deleteProduct(index){
+  if(confirm("Deseja excluir este produto?")){
+    products.splice(index,1);
+    localStorage.setItem("products", JSON.stringify(products));
+    render();
+  }
+}
+
+function changePassword(){
+  const current = document.getElementById("currentPassword").value;
+  const next = document.getElementById("newPassword").value;
+
+  if(current !== adminPassword){
+    alert("Senha atual incorreta");
+    return;
+  }
+
+  if(!next){
+    alert("Digite uma nova senha");
+    return;
+  }
+
+  adminPassword = next;
+  localStorage.setItem("adminPassword", next);
+
+  document.getElementById("currentPassword").value = "";
+  document.getElementById("newPassword").value = "";
+
+  alert("Senha alterada com sucesso");
+}
+
 function closePanel(){
   managePanel.style.display = "none";
 }
